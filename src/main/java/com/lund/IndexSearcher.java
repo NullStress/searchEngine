@@ -16,7 +16,7 @@ public class IndexSearcher {
     for(String word: searchWords) {
       searchFreq.compute(word, (k,v) -> v == null ? 1 : v + 1);
     }
-    Map<String, Integer> searchMatchCount = new HashMap<>();
+    Map<String, Integer> searchMatchCount = new TreeMap<>(Comparator.reverseOrder());
     searchFreq.forEach((word, freq) -> {
               if(indexMap.containsKey(word)) {
                 Map<String, Integer> wordEntry = indexMap.get(word);
@@ -27,10 +27,11 @@ public class IndexSearcher {
             }
 
     );
-    return searchMatchCount.entrySet()
+    Map<String, Integer> searchMatchCountLimited = new TreeMap<>(Comparator.reverseOrder());
+    searchMatchCount.entrySet()
             .stream()
-            .sorted(Comparator.comparing(Map.Entry::getValue))
             .limit(10)
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .forEach(entry -> searchMatchCountLimited.put(entry.getKey(), entry.getValue()));
+    return searchMatchCountLimited;
   }
 }
